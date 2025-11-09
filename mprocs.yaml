@@ -1,0 +1,11 @@
+# https://github.com/pvolok/mprocs#usage
+procs:
+  server:
+    shell: |
+      touch dist/index.js && deno serve -A --watch dist/index.js
+  build:client:
+    shell: |
+      deno run vite build --mode client --watch --emptyOutDir=false
+  build:server:
+    shell: |
+      deno run vite build --watch --emptyOutDir=false
