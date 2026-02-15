@@ -8,7 +8,6 @@ export default function esmImportRewriterPlugin(options?: {
   version?: (packageName: string) => string
   rewriteExportDefault?: boolean
 }): Plugin {
-  const builtins = new Set(builtinModules)
   const { ignore } = options || {}
 
   function isBareImport(moduleName: string): boolean {
@@ -22,7 +21,7 @@ export default function esmImportRewriterPlugin(options?: {
 
   function isNodeModule(moduleName: string): boolean {
     const coreModule = moduleName.split('/')[0]
-    return builtins.has(coreModule)
+    return new Set(builtinModules).has(coreModule)
   }
 
   function rewriteModule(moduleName: string): string {
@@ -48,7 +47,7 @@ export default function esmImportRewriterPlugin(options?: {
 
     if (version) {
       return `npm:${packageName}@${version}${moduleName.slice(
-        packageName.length
+        packageName.length,
       )}`
     } else {
       return `npm:${moduleName}`
@@ -69,7 +68,7 @@ export default function esmImportRewriterPlugin(options?: {
           fileName,
           code,
           ts.ScriptTarget.Latest,
-          true
+          true,
         )
 
         const s = new MagicString(code)
@@ -92,7 +91,7 @@ export default function esmImportRewriterPlugin(options?: {
                 hasChanges = true
 
                 console.log(
-                  `[esm-import-rewriter] ${moduleName} -> ${rewritten}`
+                  `[esm-import-rewriter] ${moduleName} -> ${rewritten}`,
                 )
               }
             }
@@ -113,7 +112,7 @@ export default function esmImportRewriterPlugin(options?: {
                 hasChanges = true
 
                 console.log(
-                  `[esm-import-rewriter] ${moduleName} -> ${rewritten}`
+                  `[esm-import-rewriter] ${moduleName} -> ${rewritten}`,
                 )
               }
             }
@@ -133,7 +132,7 @@ export default function esmImportRewriterPlugin(options?: {
                   'const defaultExport = mainApp.fetch.bind(mainApp);',
                   'defaultExport.fetch = defaultExport;',
                   'export { defaultExport as default };',
-                ].join('\n')
+                ].join('\n'),
               )
               hasChanges = true
               console.log(`[esm-import-rewriter] export default mainApp.fetch`)

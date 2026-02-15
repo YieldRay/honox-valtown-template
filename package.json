@@ -6,6 +6,7 @@
     "dev": "mprocs",
     "vite": "vite",
     "build": "vite build --mode client && vite build",
+    "build:wintertc": "vite build --mode client -c vite.wintertc.config.ts && vite build -c vite.wintertc.config.ts",
     "build:deno": "vite build --mode client && vite build --mode deno",
     "preview": "node --run build && node dist/index.js",
     "preview:bun": "bun run build && bun dist/index.js",

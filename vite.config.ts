@@ -21,10 +21,6 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
         external,
       },
     },
-    define: {
-      'process.env.NODE_ENV':
-        command === 'build' ? '"production"' : '"development"',
-    },
     plugins: [
       ...plugins,
       mode === 'deno' &&
