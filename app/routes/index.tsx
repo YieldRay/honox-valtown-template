@@ -3,24 +3,31 @@ import { inspectedRoutes } from '#app/server.ts'
 import Counter from '#app/islands/counter.tsx'
 import FormExample from './-components/form-example'
 import { name } from '../../package.json'
-
-const methodChipClass: Record<string, string> = {
-  GET: 'bg-emerald-100 text-emerald-700',
-  POST: 'bg-sky-100 text-sky-700',
-  PUT: 'bg-amber-100 text-amber-700',
-  DELETE: 'bg-rose-100 text-rose-700',
-}
-
-const getMethodClass = (method: string) =>
-  methodChipClass[method] ?? 'bg-slate-100 text-slate-700'
+import counterCode from '#app/islands/counter.tsx?raw'
+import formCode from './-components/form-example.tsx?raw'
 
 export default createRoute(async (c) => {
+  return c.render(<Demo />)
+})
+
+/** DELETE_ME */
+function Demo() {
+  const methodChipClass: Record<string, string> = {
+    GET: 'bg-emerald-100 text-emerald-700',
+    POST: 'bg-sky-100 text-sky-700',
+    PUT: 'bg-amber-100 text-amber-700',
+    DELETE: 'bg-rose-100 text-rose-700',
+  }
+
+  const getMethodClass = (method: string) =>
+    methodChipClass[method] ?? 'bg-slate-100 text-slate-700'
+
   const routes = inspectedRoutes.filter((entry) => !entry.isMiddleware)
   const middlewareCount = inspectedRoutes.length - routes.length
 
-  return c.render(
+  return (
     <main class="min-h-screen bg-white text-slate-900">
-      <div class="mx-auto flex max-w-4xl flex-col gap-4 px-5 py-2">
+      <div class="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-2">
         <header class="py-36 text-center">
           {['Honox', 'Tailwind'].map((name) => (
             <span class="inline-flex items-center justify-center rounded-full bg-orange-100 px-3 py-1 mr-1 text-xs font-medium text-orange-700">
@@ -37,23 +44,23 @@ export default createRoute(async (c) => {
           </p>
         </header>
 
-        <section class="grid gap-6 md:grid-cols-2">
-          <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm grid grid-templates-columns-1 md:grid-cols-2 gap-5">
+          <div>
             <h2 class="text-base font-semibold">Counter island</h2>
             <p class="mt-1 text-xs text-slate-600">
               Client interactivity where you need it.
             </p>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                class="mt-4 rounded-md border border-slate-100 bg-slate-50 p-5 text-center"
-              >
-                <Counter />
-              </div>
-            ))}
+            <div class="mt-4 rounded-md border border-slate-100 bg-slate-50 p-5 text-center">
+              <Counter />
+            </div>
           </div>
+          <pre class="max-w-full overflow-x-auto shadow-none! shj-lang-ts">
+            {counterCode}
+          </pre>
+        </section>
 
-          <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm grid grid-templates-columns-1 md:grid-cols-2 gap-5">
+          <div>
             <h2 class="text-base font-semibold">Form example</h2>
             <p class="mt-1 text-xs text-slate-600">
               Generated with zod + json-schema-to-form.
@@ -62,6 +69,10 @@ export default createRoute(async (c) => {
               <FormExample />
             </div>
           </div>
+
+          <pre class="max-w-full overflow-x-auto shadow-none! shj-lang-ts">
+            {formCode}
+          </pre>
         </section>
 
         <section class="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -115,6 +126,6 @@ export default createRoute(async (c) => {
           Server time: {new Date().toLocaleString()}
         </footer>
       </div>
-    </main>,
+    </main>
   )
-})
+}
