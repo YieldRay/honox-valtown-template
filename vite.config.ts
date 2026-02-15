@@ -21,14 +21,20 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
         external,
       },
     },
+    define: {
+      'process.env.NODE_ENV':
+        command === 'build' ? '"production"' : '"development"',
+    },
     plugins: [
       ...plugins,
       mode === 'deno' &&
         esmImportRewriter({
           rewriteExportDefault: mode === 'deno',
           version(packageName) {
-            // @ts-ignore
-            return dependencies[packageName] || devDependencies[packageName]
+            return (
+              (dependencies as Record<string, string>)[packageName] ||
+              (devDependencies as Record<string, string>)[packageName]
+            )
           },
         }),
     ],

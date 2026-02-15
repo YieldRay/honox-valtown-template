@@ -27,7 +27,7 @@ export default async function FormExample() {
               width: 100%;
             }
             fieldset {
-              border: solid 2px ButtonBorder;
+              border: solid 2px rgb(0 0 0 / 0.1);
               padding: 12px;
             }
             :where(form, form fieldset > *) {

@@ -1,18 +1,18 @@
-import { createRoute } from "honox/factory"
-import { inspectedRoutes } from "#app/server.ts"
-import Counter from "#app/islands/counter.tsx"
-import FormExample from "./-components/form-example"
-import { name } from "../../package.json"
+import { createRoute } from 'honox/factory'
+import { inspectedRoutes } from '#app/server.ts'
+import Counter from '#app/islands/counter.tsx'
+import FormExample from './-components/form-example'
+import { name } from '../../package.json'
 
 const methodChipClass: Record<string, string> = {
-  GET: "bg-emerald-100 text-emerald-700",
-  POST: "bg-sky-100 text-sky-700",
-  PUT: "bg-amber-100 text-amber-700",
-  DELETE: "bg-rose-100 text-rose-700",
+  GET: 'bg-emerald-100 text-emerald-700',
+  POST: 'bg-sky-100 text-sky-700',
+  PUT: 'bg-amber-100 text-amber-700',
+  DELETE: 'bg-rose-100 text-rose-700',
 }
 
 const getMethodClass = (method: string) =>
-  methodChipClass[method] ?? "bg-slate-100 text-slate-700"
+  methodChipClass[method] ?? 'bg-slate-100 text-slate-700'
 
 export default createRoute(async (c) => {
   const routes = inspectedRoutes.filter((entry) => !entry.isMiddleware)
@@ -20,17 +20,17 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main class="min-h-screen bg-white text-slate-900">
-      <div class="mx-auto flex max-w-4xl flex-col gap-10 px-5 py-12">
-        <header class="space-y-3 space-x-3 text-center">
-          {["Honox", "Tailwind"].map((name) => (
-            <span class="inline-flex items-center justify-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700">
+      <div class="mx-auto flex max-w-4xl flex-col gap-4 px-5 py-2">
+        <header class="py-36 text-center">
+          {['Honox', 'Tailwind'].map((name) => (
+            <span class="inline-flex items-center justify-center rounded-full bg-orange-100 px-3 py-1 mr-1 text-xs font-medium text-orange-700">
               {name}
             </span>
           ))}
           <h1 class="text-3xl font-semibold">{name}</h1>
           <p class="text-sm text-slate-600">
-            A
-            <a href="https://fresh.deno.dev/" class="underline mx-2">
+            A lightweight
+            <a href="https://fresh.deno.dev/" class="underline mx-1">
               deno fresh
             </a>
             alternative.
@@ -43,9 +43,14 @@ export default createRoute(async (c) => {
             <p class="mt-1 text-xs text-slate-600">
               Client interactivity where you need it.
             </p>
-            <div class="mt-4 rounded-md border border-slate-100 bg-slate-50 p-5 text-center">
-              <Counter />
-            </div>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                class="mt-4 rounded-md border border-slate-100 bg-slate-50 p-5 text-center"
+              >
+                <Counter />
+              </div>
+            ))}
           </div>
 
           <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -80,13 +85,13 @@ export default createRoute(async (c) => {
                 {inspectedRoutes.map((route) => (
                   <tr
                     key={`${route.method}-${route.path}-${
-                      route.name ?? "anonymous"
+                      route.name ?? 'anonymous'
                     }`}
                   >
                     <td class="px-5 py-3">
                       <span
                         class={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${getMethodClass(
-                          route.method
+                          route.method,
                         )}`}
                       >
                         {route.method}
@@ -95,9 +100,9 @@ export default createRoute(async (c) => {
                     <td class="px-5 py-3 font-mono text-[11px] text-slate-600">
                       {route.path}
                     </td>
-                    <td class="px-5 py-3 text-[11px]">{route.name || "—"}</td>
+                    <td class="px-5 py-3 text-[11px]">{route.name || '—'}</td>
                     <td class="px-5 py-3 text-[11px]">
-                      {route.isMiddleware ? "Middleware" : "Route"}
+                      {route.isMiddleware ? 'Middleware' : 'Route'}
                     </td>
                   </tr>
                 ))}
@@ -106,10 +111,10 @@ export default createRoute(async (c) => {
           </div>
         </section>
 
-        <footer class="border-t border-slate-200 pt-6 text-center text-xs text-slate-500">
+        <footer class="py-2 text-center text-xs text-slate-500">
           Server time: {new Date().toLocaleString()}
         </footer>
       </div>
-    </main>
+    </main>,
   )
 })

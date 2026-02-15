@@ -1,6 +1,6 @@
 # honox-valtown-template
 
-A template project for building SSR applications using Honox and can deploy to val.town.
+A template project for building SSR applications using [`honox`](https://github.com/honojs/honox) that can deploy to val.town.
 
 # Develop
 
@@ -54,7 +54,7 @@ bun dist/index.js
 deno serve -A dist/index.js
 ```
 
-To deploy to val.town, you can use the `vt` CLI.
+To deploy to val.town, you can use the [`vt` CLI](https://github.com/val-town/vt).
 
 ```sh
 cd dist
