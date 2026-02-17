@@ -1,12 +1,21 @@
 .form-example {
-  form {
-    width: 100%;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
   fieldset {
     border: solid 1px rgb(0 0 0 / 0.1);
     padding: 12px;
     border-radius: 4px;
   }
+  label:has(input[type='radio'], input[type='checkbox']) {
+    cursor: pointer;
+    margin-right: 12px;
+    input {
+      margin-right: 4px;
+    }
+  }
+
   :where(form, form fieldset > *) {
     display: flex;
     flex-direction: column;
@@ -17,6 +26,7 @@
     gap: 8px;
   }
   :where(form > *, form fieldset > * > *) > :first-child:not(legend) {
+    flex: 0;
     min-width: 120px;
   }
   :where(form > *, form fieldset > * > *) > :last-child {
@@ -28,4 +38,5 @@
 [class*='shj-lang-'] {
   font-size: 14px !important;
   line-height: 1.4 !important;
+  padding: 0 !important;
 }

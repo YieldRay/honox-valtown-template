@@ -31,10 +31,15 @@ export const SchemaExample = z.object({
     .optional(),
 })
 
-export default async function FormExample() {
+export default async function FormExample({
+  class: className = '',
+}: {
+  class?: string
+}) {
   return (
-    <div class="form-example">
+    <>
       <RenderSchemaToHonoForm
+        class={`${className} form-example`}
         schema={z.toJSONSchema(SchemaExample) as ObjectSchema}
         method="post"
         action="/post-form-demo"
@@ -49,6 +54,6 @@ export default async function FormExample() {
       </RenderSchemaToHonoForm>
 
       <style dangerouslySetInnerHTML={{ __html: cssText }} />
-    </div>
+    </>
   )
 }

@@ -27,14 +27,21 @@ function Demo() {
 
   return (
     <main class="min-h-screen bg-white text-slate-900">
-      <div class="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-2">
+      <div class="mx-auto max-w-6xl flex flex-col gap-4 px-5 py-2">
         <header class="py-36 text-center">
           {['Honox', 'Tailwind'].map((name) => (
             <span class="inline-flex items-center justify-center rounded-full bg-orange-100 px-3 py-1 mr-1 text-xs font-medium text-orange-700">
               {name}
             </span>
           ))}
-          <h1 class="text-3xl font-semibold">{name}</h1>
+          <h1 class="text-3xl font-semibold">
+            <a
+              target="_blank"
+              href="https://github.com/YieldRay/honox-valtown-template"
+            >
+              {name}
+            </a>
+          </h1>
           <p class="text-sm text-slate-600">
             A lightweight
             <a href="https://fresh.deno.dev/" class="underline mx-1">
@@ -45,7 +52,7 @@ function Demo() {
         </header>
 
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm grid grid-templates-columns-1 md:grid-cols-2 gap-5">
-          <div>
+          <div class="max-w-full overflow-x-auto">
             <h2 class="text-base font-semibold">Counter island</h2>
             <p class="mt-1 text-xs text-slate-600">
               Client interactivity where you need it.
@@ -54,20 +61,19 @@ function Demo() {
               <Counter />
             </div>
           </div>
+
           <pre class="max-w-full overflow-x-auto shadow-none! shj-lang-ts">
             {counterCode}
           </pre>
         </section>
 
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm grid grid-templates-columns-1 md:grid-cols-2 gap-5">
-          <div>
+          <div class="max-w-full overflow-x-auto">
             <h2 class="text-base font-semibold">Form example</h2>
             <p class="mt-1 text-xs text-slate-600">
               Generated with zod + json-schema-to-form.
             </p>
-            <div class="mt-4 rounded-md border border-slate-100 bg-slate-50 p-4">
-              <FormExample />
-            </div>
+            <FormExample class="mt-4 rounded-md border border-slate-100 bg-slate-50 p-4"></FormExample>
           </div>
 
           <pre class="max-w-full overflow-x-auto shadow-none! shj-lang-ts">
