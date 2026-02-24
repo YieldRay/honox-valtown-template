@@ -2,7 +2,7 @@
 procs:
   server:
     shell: |
-      touch dist/index.js && deno serve -A --watch dist/index.js
+      mkdir -p dist && touch dist/index.js && deno serve -A --watch dist/index.js
   build:client:
     shell: |
       deno run vite build --mode client --watch --emptyOutDir=false
