@@ -33,7 +33,7 @@ function honoxBuild(): Plugin {
             const VALTOWN_ENTRYPOINT = process.env.VALTOWN_ENTRYPOINT;
             const readFile = async (path) => {
               if (VALTOWN_ENTRYPOINT) {
-                const {readFile: vtReadFile } = await import('https://esm.town/v/std/utils/index.ts');
+                const { readFile: vtReadFile } = await import('https://esm.town/v/std/utils/index.ts');
                 return await vtReadFile(path, VALTOWN_ENTRYPOINT);
               } else {
                 const __filename = fileURLToPath(import.meta.url);

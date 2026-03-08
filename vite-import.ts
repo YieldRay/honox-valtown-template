@@ -58,6 +58,7 @@ export default function esmImportRewriterPlugin(options?: {
     name: 'vite-plugin-esm-import-rewriter',
 
     generateBundle(_options, bundle) {
+      console.log() // for better readability of logs
       for (const [fileName, chunk] of Object.entries(bundle)) {
         // Only process JS chunks
         if (chunk.type !== 'chunk') continue
