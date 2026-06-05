@@ -59,6 +59,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 
   if (mode === 'node' || mode === 'deno') {
     external = Array.from(deps).map(
+      // match all imports from the package, including subpath imports, but exclude raw imports (e.g. import xxx from 'xxx?raw')
       (pkg) => new RegExp(`^${pkg}(/.*)?$(?<!\\?raw)$`),
     )
   } else if (mode === 'wintertc') {
@@ -80,6 +81,10 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       target: 'esnext',
       rollupOptions: {
         external,
+        output: {
+          // codeSplitting: true,
+          // preserveModules: true,
+        },
       },
     },
     ssr,

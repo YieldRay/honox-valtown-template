@@ -1,6 +1,5 @@
 import { type Plugin } from 'vite'
-import { isBuiltin, builtinModules } from 'node:module'
-import { createRequire } from 'node:module'
+import { isBuiltin, builtinModules, createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
 const NAME = 'polyfill-node-builtin-modules'
@@ -11,11 +10,11 @@ function log(...args: any[]) {
 }
 
 /**
- * Some node built-in modules are not fully polyfilled by unenv/node (or we just should not use it).
- * we implement them ourselves and replace the imports with the polyfill code.
+ * Some node built-in modules are not fully polyfilled by unenv/node (or we just should not use them).
+ * We implement them ourselves and replace the imports with the polyfill code.
  */
 const REPLACE_MAP: Record<string, string> = {
-  //! WARN: this polyfill should only be used for isolate-per-request runtimes,
+  //! WARNING: this polyfill should only be used for isolate-per-request runtimes,
   //! NEVER use it in a long-running server environment since it does not properly implement the async context management.
   async_hooks: /*js*/ `\
     export class AsyncLocalStorage {
@@ -70,7 +69,10 @@ export function polyfillNodeBuiltinModulesPlugin(): Plugin {
       const moduleName = source.startsWith('node:') ? source.slice(5) : source
 
       if (Object.keys(REPLACE_MAP).includes(moduleName)) {
-        return PREFIX + moduleName
+        return {
+          id: PREFIX + moduleName,
+          moduleSideEffects: false,
+        }
       }
 
       return {

@@ -6,15 +6,18 @@ import fs from 'node:fs'
 
 export function honoxBuildWinterTcPlugin(
   {
+    minify,
     base64,
   }: {
+    minify?: boolean
     base64?: boolean
   } = {
+    minify: false,
     base64: false,
   },
 ): Plugin {
   return buildBase({
-    minify: false,
+    minify,
     entryContentBeforeHooks: [
       async (appName, options) => {
         // Support only WinterTC runtimes

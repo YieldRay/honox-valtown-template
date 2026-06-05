@@ -19,7 +19,7 @@ function getPackageVersion(packageName: string): string | undefined {
 
 /**
  * This plugin rewrites ESM imports in the generated bundle to support deno.
- * it touches the generateBundle hook of rollup, and rewrites the import paths in the generated code.
+ * It touches the generateBundle hook of rollup, and rewrites the import paths in the generated code.
  */
 export function rewriteEsmImportForBundlePlugin(options?: {
   ignore?: (packageName: string) => boolean
@@ -131,8 +131,8 @@ export function rewriteEsmImportForBundlePlugin(options?: {
           }
 
           if (options?.rewriteExportDefault && ts.isExportDeclaration(node)) {
-            // now it is: export default mainApp | export { mainApp as default }
-            // we should set to export default mainApp.fetch
+            // Now it is: export default mainApp | export { mainApp as default }
+            // We should set it to export default mainApp.fetch
 
             if (node.exportClause && ts.isNamedExports(node.exportClause)) {
               const start = node.getStart(sourceFile)

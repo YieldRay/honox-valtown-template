@@ -7,9 +7,15 @@ import type { Plugin } from 'vite'
  *
  * https://github.com/honojs/vite-plugins/blob/main/packages/build/src/adapter/node/index.ts
  */
-export function honoxBuildPlugin(): Plugin {
+export function honoxBuildPlugin(
+  {
+    minify,
+  }: {
+    minify?: boolean
+  } = { minify: false },
+): Plugin {
   return buildBase({
-    minify: false,
+    minify,
     entryContentBeforeHooks: [
       async (appName, options) => {
         // Support both val.town and node/deno/bun
@@ -34,6 +40,9 @@ export function honoxBuildPlugin(): Plugin {
             }
           `
         for (const path of staticPaths ?? []) {
+          //! Skip hidden files
+          if (path.split('/').some((part) => part.startsWith('.'))) continue
+
           if (path.endsWith('/*')) {
             code += /*js*/ `
                 ${appName}.use('${path}', async c => {
