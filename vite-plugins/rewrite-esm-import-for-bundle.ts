@@ -1,9 +1,27 @@
-import { builtinModules } from 'node:module'
+import { isBuiltin } from 'node:module'
 import ts from 'typescript'
 import MagicString from 'magic-string'
 import type { Plugin } from 'vite'
+import { dependencies, devDependencies } from '../package.json'
 
-export default function esmImportRewriterPlugin(options?: {
+const NAME = 'rewrite-esm-import'
+
+function log(...args: any[]) {
+  console.log(`[${NAME}]`, ...args)
+}
+
+function getPackageVersion(packageName: string): string | undefined {
+  return (
+    (dependencies as Record<string, string>)[packageName] ||
+    (devDependencies as Record<string, string>)[packageName]
+  )
+}
+
+/**
+ * This plugin rewrites ESM imports in the generated bundle to support deno.
+ * it touches the generateBundle hook of rollup, and rewrites the import paths in the generated code.
+ */
+export function rewriteEsmImportForBundlePlugin(options?: {
   ignore?: (packageName: string) => boolean
   version?: (packageName: string) => string
   rewriteExportDefault?: boolean
@@ -19,11 +37,6 @@ export default function esmImportRewriterPlugin(options?: {
     return true
   }
 
-  function isNodeModule(moduleName: string): boolean {
-    const coreModule = moduleName.split('/')[0]
-    return new Set(builtinModules).has(coreModule)
-  }
-
   function rewriteModule(moduleName: string): string {
     //! If the module is a scoped package, return it as is
     if (moduleName.startsWith('#')) {
@@ -34,7 +47,8 @@ export default function esmImportRewriterPlugin(options?: {
       return moduleName
     }
 
-    if (isNodeModule(moduleName)) {
+    if (isBuiltin(moduleName)) {
+      if (moduleName.startsWith('node:')) return moduleName
       return `node:${moduleName}`
     }
 
@@ -43,7 +57,8 @@ export default function esmImportRewriterPlugin(options?: {
       ? moduleName.split('/').slice(0, 2).join('/')
       : moduleName.split('/')[0]
 
-    const version = options?.version?.(packageName)
+    const version =
+      options?.version?.(packageName) || getPackageVersion(packageName)
 
     if (version) {
       return `npm:${packageName}@${version}${moduleName.slice(
@@ -55,7 +70,7 @@ export default function esmImportRewriterPlugin(options?: {
   }
 
   return {
-    name: 'vite-plugin-esm-import-rewriter',
+    name: NAME,
 
     generateBundle(_options, bundle) {
       console.log() // for better readability of logs
@@ -91,9 +106,7 @@ export default function esmImportRewriterPlugin(options?: {
                 s.overwrite(start, end, rewritten)
                 hasChanges = true
 
-                console.log(
-                  `[esm-import-rewriter] ${moduleName} -> ${rewritten}`,
-                )
+                log(`${moduleName} -> ${rewritten}`)
               }
             }
           }
@@ -112,9 +125,7 @@ export default function esmImportRewriterPlugin(options?: {
                 s.overwrite(start, end, rewritten)
                 hasChanges = true
 
-                console.log(
-                  `[esm-import-rewriter] ${moduleName} -> ${rewritten}`,
-                )
+                log(`${moduleName} -> ${rewritten}`)
               }
             }
           }
@@ -136,7 +147,7 @@ export default function esmImportRewriterPlugin(options?: {
                 ].join('\n'),
               )
               hasChanges = true
-              console.log(`[esm-import-rewriter] export default mainApp.fetch`)
+              log(`export default mainApp.fetch`)
             }
           }
 
@@ -149,6 +160,7 @@ export default function esmImportRewriterPlugin(options?: {
           chunk.code = s.toString()
           // Update source map if it exists
           if (chunk.map) {
+            //@ts-ignore
             chunk.map = s.generateMap({ hires: true })
           }
         }

@@ -1,22 +1,13 @@
 // import build from "@hono/vite-build/node";
 import buildBase from '@hono/vite-build'
-import adapter from '@hono/vite-dev-server/node'
-import tailwindcss from '@tailwindcss/vite'
-import honox from 'honox/vite'
 import type { Plugin } from 'vite'
 
-export const plugins = [
-  honox({
-    devServer: { adapter },
-    client: { input: ['/app/client.ts', '/app/style.css'] },
-  }),
-  tailwindcss(),
-  // build(),
-  // https://github.com/honojs/vite-plugins/blob/main/packages/build/src/adapter/node/index.ts
-  honoxBuild(),
-]
-
-function honoxBuild(): Plugin {
+/**
+ * Replacement for @hono/vite-build/node that supports both node and deno, and also supports static file serving.
+ *
+ * https://github.com/honojs/vite-plugins/blob/main/packages/build/src/adapter/node/index.ts
+ */
+export function honoxBuildPlugin(): Plugin {
   return buildBase({
     minify: false,
     entryContentBeforeHooks: [

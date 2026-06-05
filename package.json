@@ -3,10 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "mprocs",
-    "vite": "vite",
-    "build": "vite build --mode client && vite build",
-    "build:wintertc": "vite build --mode client -c vite.wintertc.config.ts && vite build -c vite.wintertc.config.ts",
+    "dev": "vite",
+    "build": "vite build --mode client && vite build --mode node",
+    "build:wintertc": "vite build --mode client && vite build --mode wintertc",
     "build:deno": "vite build --mode client && vite build --mode deno",
     "preview": "node --run build && node dist/index.js",
     "preview:bun": "bun run build && bun dist/index.js",
@@ -14,25 +13,22 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.11",
-    "ajv": "^8.18.0",
-    "hono": "^4.12.5",
-    "honox": "^0.1.54",
-    "json-schema-to-form": "^0.0.1",
-    "zod": "^4.3.6"
+    "@hono/node-server": "^2.0.4",
+    "hono": "^4.12.23",
+    "honox": "^0.1.56"
   },
   "devDependencies": {
-    "@hono/vite-build": "^1.10.0",
-    "@hono/vite-dev-server": "^0.25.0",
+    "@hono/vite-build": "^1.11.1",
+    "@hono/vite-dev-server": "^0.26.0",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "^4.2.1",
-    "@types/node": "^25.3.5",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^25.9.1",
     "magic-string": "^0.30.21",
-    "mprocs": "^0.8.3",
-    "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "unenv": "2.0.0-rc.24",
+    "vite": "^8.0.16"
   },
   "imports": {
     "#app/*": [

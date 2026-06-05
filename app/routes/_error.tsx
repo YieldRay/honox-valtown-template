@@ -1,7 +1,7 @@
-import type { ErrorHandler } from "hono"
+import type { ErrorHandler } from 'hono'
 
 const handler: ErrorHandler = (e, c) => {
-  if ("getResponse" in e) {
+  if ('getResponse' in e) {
     return e.getResponse()
   }
 

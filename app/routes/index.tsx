@@ -1,7 +1,6 @@
 import { createRoute } from 'honox/factory'
 import { inspectedRoutes } from '#app/server.ts'
 import Counter from '#app/islands/counter.tsx'
-import FormExample from './-components/form-example'
 import { name } from '../../package.json'
 import counterCode from '#app/islands/counter.tsx?raw'
 import formCode from './-components/form-example.tsx?raw'
@@ -64,20 +63,6 @@ function Demo() {
 
           <pre class="max-w-full overflow-x-auto shadow-none! shj-lang-ts">
             {counterCode}
-          </pre>
-        </section>
-
-        <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm grid grid-templates-columns-1 md:grid-cols-2 gap-5">
-          <div class="max-w-full overflow-x-auto">
-            <h2 class="text-base font-semibold">Form example</h2>
-            <p class="mt-1 text-xs text-slate-600">
-              Generated with zod + json-schema-to-form.
-            </p>
-            <FormExample class="mt-4 rounded-md border border-slate-100 bg-slate-50 p-4"></FormExample>
-          </div>
-
-          <pre class="max-w-full overflow-x-auto shadow-none! shj-lang-ts">
-            {formCode}
           </pre>
         </section>
 
