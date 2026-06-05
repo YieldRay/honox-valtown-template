@@ -10,6 +10,7 @@ import { rewriteEsmImportForBundlePlugin } from './vite-plugins/rewrite-esm-impo
 import { honoxBuildPlugin } from './vite-plugins/hono-build'
 import { honoxBuildWinterTcPlugin } from './vite-plugins/hono-build-wintertc'
 import { polyfillNodeBuiltinModulesPlugin } from './vite-plugins/polyfill-node-builtin-modules'
+import { aliasReactToHonoPlugin } from './vite-plugins/alias-react-to-hono'
 
 /**
  * currently, we use vite's mode to determine which build target to build for.
@@ -98,6 +99,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
         rewriteEsmImportForBundlePlugin({
           rewriteExportDefault: mode === 'deno',
         }),
+      aliasReactToHonoPlugin(),
       tailwindcss(),
     ],
     commonjsOptions: {

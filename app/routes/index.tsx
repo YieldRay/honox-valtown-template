@@ -4,6 +4,8 @@ import { name } from '../../package.json'
 import Counter from '#app/islands/counter.tsx'
 import counterCode from '#app/islands/counter.tsx?raw'
 
+import { Button } from '#app/components/ui/button.tsx'
+
 export default createRoute(async (c) => {
   return c.render(<Demo />)
 })
@@ -40,6 +42,9 @@ function Demo() {
         }}
       ></script>
       {/* @end cdn */}
+      <Button onClick={() => alert('Hello from Honox!')} class="m-5">
+        Click me
+      </Button>
       <div class="mx-auto max-w-6xl flex flex-col gap-4 px-5 py-2">
         <header class="py-36 text-center">
           {['Honox', 'Tailwind'].map((name) => (
