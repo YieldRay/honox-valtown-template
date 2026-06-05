@@ -86,7 +86,9 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
     plugins: [
       mode === 'wintertc' && polyfillNodeBuiltinModulesPlugin(),
       honox({ client: { input: ['/app/client.ts', '/app/style.css'] } }),
-      mode === 'wintertc' ? honoxBuildWinterTcPlugin() : honoxBuildPlugin(),
+      mode === 'wintertc'
+        ? honoxBuildWinterTcPlugin({ base64: true })
+        : honoxBuildPlugin(),
       mode === 'deno' &&
         rewriteEsmImportForBundlePlugin({
           rewriteExportDefault: mode === 'deno',

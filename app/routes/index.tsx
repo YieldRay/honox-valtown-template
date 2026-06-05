@@ -1,15 +1,14 @@
 import { createRoute } from 'honox/factory'
 import { inspectedRoutes } from '#app/server.ts'
-import Counter from '#app/islands/counter.tsx'
 import { name } from '../../package.json'
+import Counter from '#app/islands/counter.tsx'
 import counterCode from '#app/islands/counter.tsx?raw'
-import formCode from './-components/form-example.tsx?raw'
 
 export default createRoute(async (c) => {
   return c.render(<Demo />)
 })
 
-/** DELETE_ME */
+/** REMOVE THIS FUNCTION */
 function Demo() {
   const methodChipClass: Record<string, string> = {
     GET: 'bg-emerald-100 text-emerald-700',
@@ -26,6 +25,21 @@ function Demo() {
 
   return (
     <main class="min-h-screen bg-white text-slate-900">
+      {/* @start cdn */}
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/@speed-highlight/core/dist/themes/default.css"
+      ></link>
+      <script
+        type="module"
+        dangerouslySetInnerHTML={{
+          __html: /*js*/ `
+            import { highlightAll } from 'https://unpkg.com/@speed-highlight/core/dist/index.js';
+            highlightAll({ hideLineNumbers: true });
+          `,
+        }}
+      ></script>
+      {/* @end cdn */}
       <div class="mx-auto max-w-6xl flex flex-col gap-4 px-5 py-2">
         <header class="py-36 text-center">
           {['Honox', 'Tailwind'].map((name) => (

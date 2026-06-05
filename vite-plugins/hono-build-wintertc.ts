@@ -4,7 +4,15 @@ import type { Plugin } from 'vite'
 import path from 'node:path'
 import fs from 'node:fs'
 
-export function honoxBuildWinterTcPlugin(): Plugin {
+export function honoxBuildWinterTcPlugin(
+  {
+    base64,
+  }: {
+    base64?: boolean
+  } = {
+    base64: false,
+  },
+): Plugin {
   return buildBase({
     minify: false,
     entryContentBeforeHooks: [
@@ -15,6 +23,12 @@ export function honoxBuildWinterTcPlugin(): Plugin {
 
         let code = /*js*/ `
           import { getMimeType } from "hono/utils/mime";
+          function b64ToBytes(b64) {
+            const bin = atob(b64)
+            const out = new Uint8Array(bin.length)
+            for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+            return out
+          }
           `
 
         const expandedPaths: string[] = []
@@ -26,20 +40,26 @@ export function honoxBuildWinterTcPlugin(): Plugin {
         }
 
         for (const staticPath of expandedPaths) {
-          // TODO: convert none text files to base64
-          const content = fs.readFileSync(staticPath, 'utf-8')
+          if (staticPath.startsWith('.')) continue
 
-          const use = path.relative(
+          const routePath = path.relative(
             path.join(process.cwd(), 'dist'),
             staticPath,
           )
-          const routePath = '/' + use.replace(/\\/g, '/')
+
+          //! Skip hidden files
+          if (routePath.split(path.sep).some((part) => part.startsWith('.')))
+            continue
+
+          const use = '/' + routePath.replace(/\\/g, '/')
+          const ext = use.slice(use.lastIndexOf('.'))
 
           code += /*js*/ `
-            ${appName}.use('${routePath}', async c => {
-              return c.body(${JSON.stringify(content)}, {
-                headers: { 'content-type': getMimeType('${routePath.slice(routePath.lastIndexOf('.'))}') }
-               });
+            ${appName}.use(${JSON.stringify(use)}, async c => {
+              return c.body(
+                ${base64 ? `b64ToBytes('${fs.readFileSync(staticPath, 'base64')}')` : JSON.stringify(fs.readFileSync(staticPath, 'utf-8'))},
+                { headers: { 'content-type': getMimeType(${JSON.stringify(ext)}) || 'application/octet-stream' } }
+              );
             })
           `
         }
