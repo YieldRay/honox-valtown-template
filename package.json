@@ -14,8 +14,11 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.0.4",
+    "@hono/react-renderer": "^1.0.1",
     "hono": "^4.12.23",
-    "honox": "^0.1.56"
+    "honox": "^0.1.56",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@hono/vite-build": "^1.11.1",
@@ -23,7 +26,11 @@
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/redact": "^0.0.12",
     "@types/node": "^25.9.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
     "magic-string": "^0.30.21",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",

@@ -5,7 +5,9 @@ import {
 } from 'vite'
 import { dependencies, devDependencies } from './package.json'
 import honox from 'honox/vite'
+import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { redact } from '@tanstack/redact/vite'
 import { rewriteEsmImportForBundlePlugin } from './vite-plugins/rewrite-esm-import-for-bundle'
 import { honoxBuildPlugin } from './vite-plugins/hono-build'
 import { honoxBuildWinterTcPlugin } from './vite-plugins/hono-build-wintertc'
@@ -35,6 +37,11 @@ const VITE_MODES = [
   'wintertc',
 ] as const
 
+/**
+ * Use react + @tanstack/react instead of hono/jsx
+ * @see https://tannerlinsley.com/posts/projecting-react
+ * @see https://github.com/honojs/honox#byor---bring-your-own-renderer
+ */
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   if (command === 'serve') {
     // vite's mode defaults to 'development' when command is 'serve' (vite dev), and 'production' when command is 'build' (vite build)
@@ -67,12 +74,13 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   }
 
   // ----- vite ssr -----
-  let ssr: SSROptions | undefined = undefined
+  let ssr: SSROptions | undefined = {
+    external: ['react', 'react-dom'],
+  }
   if (mode === 'wintertc') {
     ssr = {
       target: 'webworker',
       noExternal: true,
-      external: [],
     }
   }
   // ----- vite -----
@@ -89,16 +97,18 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
     },
     ssr,
     plugins: [
+      redact({ preset: 'full' }),
+      mode === 'client' && react(),
       mode === 'wintertc' && polyfillNodeBuiltinModulesPlugin(),
       honox({ client: { input: ['/app/client.ts', '/app/style.css'] } }),
       mode === 'wintertc'
         ? honoxBuildWinterTcPlugin({ base64: true })
         : honoxBuildPlugin(),
+      tailwindcss(),
       mode === 'deno' &&
         rewriteEsmImportForBundlePlugin({
           rewriteExportDefault: mode === 'deno',
         }),
-      tailwindcss(),
     ],
     commonjsOptions: {
       transformMixedEsModules: mode === 'wintertc' ? true : undefined,
