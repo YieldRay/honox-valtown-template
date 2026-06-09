@@ -75,7 +75,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 
   // ----- vite ssr -----
   let ssr: SSROptions | undefined = {
-    external: ['react', 'react-dom'],
+    external: [...deps],
   }
   if (mode === 'wintertc') {
     ssr = {
