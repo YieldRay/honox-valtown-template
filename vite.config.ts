@@ -1,14 +1,10 @@
-import {
-  defineConfig,
-  type BuildEnvironmentOptions,
-  type SSROptions,
-} from 'vite'
+import { defineConfig } from 'vite'
+import type { BuildEnvironmentOptions, SSROptions } from 'vite'
 import { dependencies, devDependencies } from './package.json'
 import honox from 'honox/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { rewriteEsmImportForBundlePlugin } from './vite-plugins/rewrite-esm-import-for-bundle'
 import { honoxBuildPlugin } from './vite-plugins/hono-build'
-import { honoxBuildWinterTcPlugin } from './vite-plugins/hono-build-wintertc'
 import { polyfillNodeBuiltinModulesPlugin } from './vite-plugins/polyfill-node-builtin-modules'
 
 /**
@@ -55,24 +51,32 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   deps.delete('honox') // honox is a virtual module
 
   // ----- vite external -----
-  let external: (BuildEnvironmentOptions['rollupOptions'] & {})['external'] = []
+  let external: NonNullable<
+    BuildEnvironmentOptions['rollupOptions']
+  >['external'] = []
 
   if (mode === 'node' || mode === 'deno') {
     external = Array.from(deps).map(
-      // match all imports from the package, including subpath imports, but exclude raw imports (e.g. import xxx from 'xxx?raw')
-      (pkg) => new RegExp(`^${pkg}(/.*)?$(?<!\\?raw)$`),
+      // match all imports from the package, including subpath imports,
+      // but bundle (don't externalize) raw imports (e.g. 'xxx?raw') and .css files
+      (pkg) => new RegExp(`^${pkg}(/.*)?(?<!\\?raw)(?<!\\.css)$`),
     )
   } else if (mode === 'wintertc') {
     external = ['honox/vite']
   }
 
   // ----- vite ssr -----
-  let ssr: SSROptions | undefined = undefined
+  let ssr: SSROptions | undefined = {
+    external: [...deps],
+  }
   if (mode === 'wintertc') {
     ssr = {
       target: 'webworker',
       noExternal: true,
-      external: [],
+    }
+  } else {
+    ssr = {
+      external: [...deps],
     }
   }
   // ----- vite -----
@@ -81,24 +85,31 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       target: 'esnext',
       rollupOptions: {
         external,
-        output: {
-          // codeSplitting: true,
-          // preserveModules: true,
-        },
+        output:
+          mode === 'node'
+            ? {
+                // codeSplitting: true,
+                // preserveModules: true,
+              }
+            : undefined,
       },
     },
+    define:
+      mode === 'client'
+        ? { process: '({ env: {} })' }
+        : { 'process.env': 'process.env' },
     ssr,
     plugins: [
       mode === 'wintertc' && polyfillNodeBuiltinModulesPlugin(),
       honox({ client: { input: ['/app/client.ts', '/app/style.css'] } }),
       mode === 'wintertc'
-        ? honoxBuildWinterTcPlugin({ base64: true })
-        : honoxBuildPlugin(),
+        ? honoxBuildPlugin({ embedding: 'base64' })
+        : honoxBuildPlugin({ launch: true }),
+      tailwindcss(),
       mode === 'deno' &&
         rewriteEsmImportForBundlePlugin({
           rewriteExportDefault: mode === 'deno',
         }),
-      tailwindcss(),
     ],
     commonjsOptions: {
       transformMixedEsModules: mode === 'wintertc' ? true : undefined,

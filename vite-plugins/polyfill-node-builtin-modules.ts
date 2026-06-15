@@ -26,7 +26,16 @@ const REPLACE_MAP: Record<string, string> = {
         return this._store
       }
     }
-`,
+    export class AsyncResource {
+      constructor(type, triggerAsyncId) {}
+      static bind(fn, type, thisArg) { return fn.bind(thisArg) }
+      bind(fn) { return fn }
+      runInAsyncScope(fn, thisArg, ...args) { return fn.apply(thisArg, args) }
+      emitDestroy() { return this }
+      asyncId() { return 0 }
+      triggerAsyncId() { return 0 }
+    }
+    `,
 }
 
 function removeNodeBuiltinModulesFromExternal(

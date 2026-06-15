@@ -1,6 +1,4 @@
 @import 'tailwindcss' source('../app');
-@plugin "@tailwindcss/forms";
-@plugin "@tailwindcss/typography";
 
 @layer base {
   button:not(:disabled),
