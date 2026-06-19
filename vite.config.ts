@@ -104,7 +104,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       honox({ client: { input: ['/app/client.ts', '/app/style.css'] } }),
       mode === 'wintertc'
         ? honoxBuildPlugin({ embedding: 'base64' })
-        : honoxBuildPlugin({ launch: true }),
+        : honoxBuildPlugin({ launch: mode === 'node' }),
       tailwindcss(),
       mode === 'deno' &&
         rewriteEsmImportForBundlePlugin({

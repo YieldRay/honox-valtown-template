@@ -60,3 +60,9 @@ To deploy to val.town, you can use the [`vt` CLI](https://github.com/val-town/vt
 cd dist
 vt push
 ```
+
+Or we ship a helper script to automate the pushing process, so no extra cli is needed.
+
+```sh
+node scripts/vt-push.ts
+```
