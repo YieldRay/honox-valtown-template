@@ -10,7 +10,7 @@ interface Options {
    * Whether to embed static assets into the bundle. If true, it will embed as text, if 'base64', it will embed as base64.
    * Embedding is useful for runtimes that do not have a good way to read files, such as WinterTC.
    */
-  embedding?: boolean | 'text' | 'base64'
+  embedding?: boolean | BufferEncoding
   launch?: boolean
 }
 
@@ -35,24 +35,51 @@ export function honoxBuildPlugin(options?: Options): Plugin {
             import { fileURLToPath } from "node:url";
             import { join, dirname } from "node:path";
             import { readFile as fsReadFile } from "node:fs/promises";
-            import { getMimeType } from "hono/utils/mime";
+            import { serveStatic } from "hono/serve-static";
           `
 
         if (embedding) {
-          // by default, we embed as text, but if embedding is true, we embed as base64 to support binary files
-          const isBase64 = embedding === 'base64'
-          const embeddingAssets = getEmbeddedAssets(
-            staticPaths ?? [],
-            isBase64 ? 'base64' : 'text',
-          )
+          const encoding = embedding === true ? 'utf-8' : embedding
+          // by default, we embed it as plain text (utf-8)
+          const embeddingAssets = getEmbeddedAssets(staticPaths ?? [], encoding)
+
+          switch (encoding) {
+            case 'base64':
+              code += /*js*/ `\
+                function __decodeAsset(b64) {
+                  const bin = atob(b64)
+                  const out = new Uint8Array(bin.length)
+                  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+                  return out
+                }`
+              break
+            case 'base64url':
+              code += /*js*/ `\
+                function __decodeAsset(b64url) {
+                  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/')
+                  const bin = atob(b64)
+                  const out = new Uint8Array(bin.length)
+                  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+                  return out
+                }`
+              break
+            case 'hex':
+              code += /*js*/ `\
+                function __decodeAsset(hex) {
+                  const out = new Uint8Array(hex.length / 2)
+                  for (let i = 0; i < hex.length; i += 2) {
+                    out[i / 2] = Number.parseInt(hex.slice(i, i + 2), 16)
+                  }
+                  return out
+                }`
+              break
+            default:
+              code += /*js*/ `\
+                function __decodeAsset(content) { return content };`
+              break
+          }
 
           code += /*js*/ `
-            function __b64ToBytes(b64) {
-              const bin = atob(b64)
-              const out = new Uint8Array(bin.length)
-              for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
-              return out
-            }
             const __embeddingAssets = ${JSON.stringify(embeddingAssets)};
             const readFile = async (path) => {
               if (!(path in __embeddingAssets)) {
@@ -63,8 +90,8 @@ export function honoxBuildPlugin(options?: Options): Plugin {
                 err.path = path;
                 throw err;
               }
-              const content = __embeddingAssets[path]
-              return ${isBase64 ? '__b64ToBytes(content)' : 'content'};
+              const asset = __embeddingAssets[path];
+              return __decodeAsset(asset);
             }
           `
         } else {
@@ -83,44 +110,13 @@ export function honoxBuildPlugin(options?: Options): Plugin {
           `
         }
 
-        code += /*js*/ `
-          const __cFile = async (c, route, ext) => {
-            const headers = { 'content-type': getMimeType(ext) };
-            let file;
-            try {
-              file = await readFile(route);
-            } catch (err) {
-              if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
-                return c.text('Not Found', 404);
-              }
-              throw err;
-            }
-            return c.body(file, { headers });
-          }
-        `
+        code += /*js*/ `const serveStaticCommon = serveStatic({ getContent(path) { return readFile(path) } });`
 
         for (const path of staticPaths ?? []) {
           //! Skip hidden files
           if (path.split('/').some((part) => part.startsWith('.'))) continue
 
-          if (path.endsWith('/*')) {
-            code += /*js*/ `
-                ${appName}.use('${path}', c => {
-                  const url = new URL(c.req.url);
-                  const filePath = url.pathname.slice(1);
-                  const ext = filePath.slice(filePath.lastIndexOf('.'));
-                  return __cFile(c, filePath, ext);
-                })
-              `
-          } else {
-            const filePath = path.slice(1)
-            const ext = filePath.slice(filePath.lastIndexOf('.'))
-            code += /*js*/ `
-                ${appName}.use('${path}', c => {
-                  return __cFile(c, '${filePath}', '${ext}');
-                })
-              `
-          }
+          code += /*js*/ `${appName}.use('${path}', serveStaticCommon);`
         }
         return code
       },
@@ -130,11 +126,13 @@ export function honoxBuildPlugin(options?: Options): Plugin {
       async (appName) => {
         if (!launch) return ''
 
-        return /*js*/ `
-            import { serve } from '@hono/node-server';
+        return /*js*/ `\
+          import { serve } from '@hono/node-server';
+          if (typeof Deno === 'undefined' && typeof Bun === 'undefined') {
             const port = process.env.PORT ? Number(process.env.PORT) : 9090;
             console.log('Server is running on http://localhost:' + port);
             serve({ fetch: ${appName}.fetch, port });
+          }
         `
       },
     ],
@@ -143,7 +141,7 @@ export function honoxBuildPlugin(options?: Options): Plugin {
 
 function getEmbeddedAssets(
   staticPaths: string[],
-  embedding: 'text' | 'base64',
+  embedding: BufferEncoding = 'utf-8',
 ) {
   const assets: Record<string, string> = {}
   // $vite-root/dist is the output directory of the build
@@ -152,8 +150,8 @@ function getEmbeddedAssets(
     for (const filePath of fs.globSync(path.join(root, staticPath))) {
       const content = fs.readFileSync(filePath)
 
-      assets[path.relative(root, filePath).replace(/\\/g, '/')] =
-        embedding === 'base64' ? content.toString('base64') : content.toString()
+      assets[path.relative(root, filePath).replaceAll('\\', '/')] =
+        content.toString(embedding)
     }
   }
   return assets

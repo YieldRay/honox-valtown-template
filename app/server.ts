@@ -7,7 +7,10 @@ if (globalThis.process && !Reflect.has(globalThis.process, 'env')) {
 }
 
 const app = createApp()
-showRoutes(app)
+
+if (import.meta.env.DEV) {
+  showRoutes(app)
+}
 
 export const inspectedRoutes = inspectRoutes(app)
 

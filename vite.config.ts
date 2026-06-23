@@ -103,7 +103,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       mode === 'wintertc' && polyfillNodeBuiltinModulesPlugin(),
       honox({ client: { input: ['/app/client.ts', '/app/style.css'] } }),
       mode === 'wintertc'
-        ? honoxBuildPlugin({ embedding: 'base64' })
+        ? honoxBuildPlugin({ embedding: 'binary' })
         : honoxBuildPlugin({ launch: mode === 'node' }),
       tailwindcss(),
       mode === 'deno' &&
